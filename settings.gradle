@@ -1,0 +1,2 @@
+rootProject.name='ThreadTest04'
+include ':app'
