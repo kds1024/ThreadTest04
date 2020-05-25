@@ -3,6 +3,7 @@ package com.example.threadtest04
 import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
     // 1.別スレッド(HandlerThread)を生成
@@ -13,11 +14,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val mText = findViewById<TextView>(R.id.text)
+
         // 別スレッドからMainActivityにメッセージを送信するためのハンドラー
         val mhandler : Handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what){
-                    1 -> Log.d("kd>", "what:1")
+                    1 -> {
+                        Log.d("kd>", "${msg.obj}")
+                        mText.setText("${msg.obj}")
+                    }
+                    2 -> {
+                        Log.d("kd>", "${msg.obj}")
+                        mText.setText("${msg.obj}")
+                        simplethread.quit()
+                    }
+
                 }
             }
         }
@@ -35,21 +47,31 @@ class MainActivity : AppCompatActivity() {
 
         // 4. 3で作成したHandlerインスタンスを使用(Handler#post 等)
         // Runnableをスレッドにpostするとこのタスクをスレッドで実行してくれる
+        // Runnableには引数も返り値もない
         val r = Runnable {
-            Log.d("kd>", "タスク開始 ${HandlerThread.currentThread()}")
-            HandlerThread.sleep(3000)
-            Log.d("kd>", "タスク完了 ${HandlerThread.currentThread()}")
+            for (i in 1..1000){
+                Log.d("kd>", "タスク開始 ${HandlerThread.currentThread()}")
+                HandlerThread.sleep(1000)
+                Log.d("kd>", "タスク完了 ${HandlerThread.currentThread()}")
 
+                // スレッド内からMainActivityにメッセージを送信する
+                // これで、スレッドの処理が完了したことがMainActivityに通知できる
+                val msg = mhandler.obtainMessage(1, i)
+                mhandler.sendMessage(msg)
+            }
             // スレッド内からMainActivityにメッセージを送信する
             // これで、スレッドの処理が完了したことがMainActivityに通知できる
-            val msg = mhandler.obtainMessage(1, "test")
+            val msg = mhandler.obtainMessage(2, "complete")
             mhandler.sendMessage(msg)
         }
-
         // simplethreadのハンドラーにRunnableをポストして別スレッドでタスクを実行する
         simplehandler.post(r)
     }
 
+    override fun onDestroy() {
+        simplethread.quit()
+        simplehandler = Handler(Looper.getMainLooper())
+        super.onDestroy()
+    }
 
-    
 }
