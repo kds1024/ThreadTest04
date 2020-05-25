@@ -9,13 +9,11 @@ class MainActivity : AppCompatActivity() {
     val simplethread = HandlerThread("simplethread")
     var simplehandler = Handler()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // 別スレッドからMainActivityにメッセージを送信するためのハンドラー
-        // 
         val mhandler : Handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what){
@@ -51,4 +49,7 @@ class MainActivity : AppCompatActivity() {
         // simplethreadのハンドラーにRunnableをポストして別スレッドでタスクを実行する
         simplehandler.post(r)
     }
+
+
+    
 }
