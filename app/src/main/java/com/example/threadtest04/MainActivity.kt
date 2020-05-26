@@ -37,7 +37,7 @@ class AsyncTaskAAA : AsyncTask<Int, Int, Int>() {
         for (i in 1..100) {
             Log.d("kd>", "${count}")
             publishProgress(count)
-            Thread.sleep(1000)
+            Thread.sleep(10000)
             count += 1
         }
         return 0
